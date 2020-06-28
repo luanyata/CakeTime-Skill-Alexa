@@ -2,6 +2,7 @@
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
+const persistenceAdapter = require('ask-sdk-s3-persistence-adapter')
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
@@ -25,8 +26,8 @@ const CaptureBirthdayIntentHandler = {
         const year = handlerInput.requestEnvelope.request.intent.slots.year.value;
         const month = handlerInput.requestEnvelope.request.intent.slots.month.value;
         const day = handlerInput.requestEnvelope.request.intent.slots.day.value;
-        
-        
+
+
         const speakOutput = `Obrigado, lembrarei que seu aniversário é no dia ${day} de ${month}, e que você nasceu no ano de ${year}`;
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -112,6 +113,7 @@ const ErrorHandler = {
 // payloads to the handlers above. Make sure any new handlers or interceptors you've
 // defined are included below. The order matters - they're processed top to bottom.
 exports.handler = Alexa.SkillBuilders.custom()
+    .withPersistenceAdapter(new persistenceAdapter.S3PersistenceAdapter({ bucketName: process.env.S3_PERSiSTENCE_BUCKET }))
     .addRequestHandlers(
         LaunchRequestHandler,
         CaptureBirthdayIntentHandler,
