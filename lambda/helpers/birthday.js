@@ -8,6 +8,7 @@ function getBirthdayUserS3(handlerInput) {
 
   const attributesManager = handlerInput.attributesManager;
   const sessionAttributes = attributesManager.getSessionAttributes() || {};
+
   const year = sessionAttributes.hasOwnProperty('year') ? sessionAttributes.year : 0;
   const month = sessionAttributes.hasOwnProperty('month') ? sessionAttributes.month : 0;
   const day = sessionAttributes.hasOwnProperty('day') ? sessionAttributes.day : 0;

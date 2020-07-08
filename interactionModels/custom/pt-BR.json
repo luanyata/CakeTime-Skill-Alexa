@@ -26,6 +26,9 @@
               "name": "day",
               "type": "AMAZON.Ordinal",
               "samples": [
+                "{day} {month}",
+                "no dia {day}",
+                "em {day}",
                 "{day}"
               ]
             },
@@ -33,6 +36,9 @@
               "name": "month",
               "type": "AMAZON.Month",
               "samples": [
+                "em {day} de {month}",
+                "no mês {month}",
+                "em {month}",
                 "{month}"
               ]
             },
@@ -40,11 +46,14 @@
               "name": "year",
               "type": "AMAZON.FOUR_DIGIT_NUMBER",
               "samples": [
+                "em {year}",
                 "{year}"
               ]
             }
           ],
           "samples": [
+            "em {day} de {month} de {year}",
+            "Em {day} {month} {year}",
             "Nasci no dia {day} de {month}",
             "Nasci em {year}",
             "Nasci em {day} {month}",
@@ -103,6 +112,10 @@
         "variations": [
           {
             "type": "PlainText",
+            "value": "Desculpa, em que mês você nasceu?"
+          },
+          {
+            "type": "PlainText",
             "value": "Em que mês você nasceu?"
           }
         ]
@@ -110,6 +123,10 @@
       {
         "id": "Elicit.Slot.1160110844328.1238069721644",
         "variations": [
+          {
+            "type": "PlainText",
+            "value": "Desculpa, mais em que dia você nasceu?"
+          },
           {
             "type": "PlainText",
             "value": "Em que dia você nasceu?"
@@ -121,11 +138,15 @@
         "variations": [
           {
             "type": "PlainText",
+            "value": "Desculpa, em que ano você nasceu?"
+          },
+          {
+            "type": "PlainText",
             "value": "Em que ano você nasceu?"
           }
         ]
       }
     ]
   },
-  "version": "3"
+  "version": "5"
 }

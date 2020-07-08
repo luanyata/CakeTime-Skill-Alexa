@@ -1,23 +1,47 @@
-# Cake Time
+<p align="center">
+  <img src="https://m.media-amazon.com/images/G/01/mobile-apps/dex/avs/docs/ux/branding/mark1._TTH_.png">
+  <br/>
+  <h1 align="center">Skill Cake Time 🎂</h1>
 
-Skill que sabe sua idade a sua data de aniversário    
+  <p align="center">
+  <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/luanyata/CakeTime-Skill-Alexa?color=%2304D361">
 
-Ps: Cada ação é definida por um objeto contendo duas funções
+  <a href="https://www.linkedin.com/in/luanyata/">
+    <img alt="Made by Luan Yata" src="https://img.shields.io/badge/made%20by-LuanYata-%2304D361">
+  </a>
 
-    * canHandle: Verifica que esse objeto é responsavel para tratar a acao solicitada
-    * handle: Execução da ação,  interaçao com usuario, api , etc...
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-%2304D361">
+
+  <a href="https://github.com/luanyata/CakeTime-Skill-Alexa/stargazers">
+    <img alt="Stargazers" src="https://img.shields.io/github/stars/luanyata/CakeTime-Skill-Alexa?style=social">
+  </a>
+</p>
+
+Skill Desenvolvinda no tutorial introdutório a Skill Alexa
 
 
-Para usar numeral verificar SSML (Speed Synthesis Markup Language)
+## 🛠 Funcionalidades:
 
-## Conceitos
+- Memoriza a data de aniversário
+- Parabeniza o aniversariante (caso seja o aniversário dele)
+- Caso não seja o aniversário do usuário ele informa quantos dias faltam e a idade que o usuário irá fazer
 
-* Intenção: Ação para atender a solicitação de um usuário
-* Enunciado: è o que invoca a intenção
-* Slots: São as variaveis
+## 💬 Ativação:
 
-## Funções:
+```
+"Alexa Abrir Cake Time"
+```
 
-* ResponseBuilder: Função que compila a responsa
-* Speak: Resposta qua a alexa deve falar 
-* reprompt: agudar a resposta do usuario apos uma pergunta e realizar novamente a pergunta caso o usuario nao responda
+
+## 🗯 Interação
+
+ ```
+"Nasci no dia {day} de {month}",
+"Nasci em {year}",
+"Nasci em {day} {month}",
+"Eu nasci {day} {month}",
+"{month} {year}",
+"{day} {month} {year}",
+"{day} {month}",
+"Eu nasci em {day} de {month} de {year}"
+```

@@ -10,7 +10,7 @@ const LaunchRequestHandler = {
     return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
   },
   handle(handlerInput) {
-    const speakOutput = 'Olá! Bem-vindo a Cake Time. Quando você nasceu?';
+    const speakOutput = 'Olá! Bem-vindo a Cake Time. Quando é seu aniversário?';
     const reprompt = 'Nasci em seis de novembro de dois mil e quatorze. Quando você nasceu?'
     return handlerInput.responseBuilder
       .speak(speakOutput)
@@ -21,17 +21,56 @@ const LaunchRequestHandler = {
 
 const HasBirthdayLaunchRequestHandler = {
   canHandle(handlerInput) {
-    return handlerInput.requestEnvelope.request.type === 'LaunchRequest'
+    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest'
       && containsUserBirthDay(handlerInput);
+
   },
-  handle(handlerInput) {
+  async handle(handlerInput) {
+    const serviceClientFactory = handlerInput.serviceClientFactory;
+    const deviceId = Alexa.getDeviceId(handlerInput.requestEnvelope);
 
     const { day, month, year } = getBirthdayUserS3(handlerInput);
 
-    // TODO:: Use the settings API to get current date and then compute how many days until user's birthday
-    // TODO:: Say Happy birthday on the user's birthday
+    let userTimeZone;
 
-    const speakOutput = `Bem vindo de volta, a data de seu aniversário é ${day} de  ${month} de ${year}`;
+    try {
+      const upsServiceClient = serviceClientFactory.getUpsServiceClient();
+      userTimeZone = await upsServiceClient.getSystemTimeZone(deviceId);
+    } catch (error) {
+
+      if (error !== 'ServiceError') {
+        return handlerInput
+          .responseBuilder
+          .speak('Estou com o problema de comunicação com o servidor')
+          .getResponse();
+      }
+      console.log('error', error.mesage);
+    }
+
+    const currentDateTime = new Date(new Date().toLocaleString("pt-BR", { timeZone: userTimeZone }))
+
+    const currentDate = new Date(
+      currentDateTime.getFullYear(),
+      currentDateTime.getMonth(),
+      currentDateTime.getDate()
+    );
+    const currentYear = currentDate.getFullYear();
+
+    let nextBirthday = Date.parse(`${month} ${day}, ${currentYear}`);
+
+    if (currentDate.getTime() > nextBirthday) {
+      nextBirthday = Date.parse(`${month} ${day}, ${currentYear + 1}`);
+    }
+
+    const oneDay = 1000 * 3600 * 24;
+
+    let speakOutput = `Feliz aniversário, parabêns pelos seus ${currentYear - year} anos!`;
+
+    if (currentDate.getTime() !== nextBirthday) {
+      const diffDays = Math.round(Math.abs((currentDate.getTime() - nextBirthday) / oneDay));
+      speakOutput = `Bem vindo de volta. Faltam ${diffDays} dias para o seu aniversário de ${(currentYear - year) + 1} anos.`
+    }
+
     return handlerInput.responseBuilder
       .speak(speakOutput)
       .getResponse();
@@ -39,21 +78,20 @@ const HasBirthdayLaunchRequestHandler = {
 };
 const CaptureBirthdayIntentHandler = {
   canHandle(handlerInput) {
-    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-      && handlerInput.requestEnvelope.request.intent.name === 'CaptureBirthdayIntent';
+    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+      && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CaptureBirthdayIntent';
   },
   async handle(handlerInput) {
-    const year = handlerInput.requestEnvelope.request.intent.slots.year.value;
-    const month = handlerInput.requestEnvelope.request.intent.slots.month.value;
-    const day = handlerInput.requestEnvelope.request.intent.slots.day.value;
+    const year = Alexa.getSlotValue(handlerInput.requestEnvelope, 'year');
+    const month = Alexa.getSlotValue(handlerInput.requestEnvelope, 'month');
+    const day = Alexa.getSlotValue(handlerInput.requestEnvelope, 'day');
 
     const attributesManager = handlerInput.attributesManager;
 
     const birthdayAttributes = {
-      "year": year,
-      "month": month,
-      "day": day
-
+      year,
+      month,
+      day
     };
     attributesManager.setPersistentAttributes(birthdayAttributes);
     await attributesManager.savePersistentAttributes();
@@ -68,8 +106,8 @@ const CaptureBirthdayIntentHandler = {
 
 const HelpIntentHandler = {
   canHandle(handlerInput) {
-    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-      && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.HelpIntent';
+    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+      && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
   },
   handle(handlerInput) {
     const speechText = 'You can say hello to me! How can I help?';
@@ -82,9 +120,9 @@ const HelpIntentHandler = {
 };
 const CancelAndStopIntentHandler = {
   canHandle(handlerInput) {
-    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-      && (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.CancelIntent'
-        || handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent');
+    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+      && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.CancelIntent'
+        || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent');
   },
   handle(handlerInput) {
     const speechText = 'Goodbye!';
@@ -95,7 +133,7 @@ const CancelAndStopIntentHandler = {
 };
 const SessionEndedRequestHandler = {
   canHandle(handlerInput) {
-    return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
+    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'SessionEndedRequest';
   },
   handle(handlerInput) {
     // Any cleanup logic goes here.
@@ -109,10 +147,10 @@ const SessionEndedRequestHandler = {
 // handler chain below.
 const IntentReflectorHandler = {
   canHandle(handlerInput) {
-    return handlerInput.requestEnvelope.request.type === 'IntentRequest';
+    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest';
   },
   handle(handlerInput) {
-    const intentName = handlerInput.requestEnvelope.request.intent.name;
+    const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
     const speechText = `You just triggered ${intentName}`;
 
     return handlerInput.responseBuilder
@@ -159,6 +197,7 @@ const LoadBirthdayInterceptor = {
 // payloads to the handlers above. Make sure any new handlers or interceptors you've
 // defined are included below. The order matters - they're processed top to bottom.
 exports.handler = Alexa.SkillBuilders.custom()
+  .withApiClient(new Alexa.DefaultApiClient())
   .withPersistenceAdapter(
     new persistenceAdapter.S3PersistenceAdapter({ bucketName: process.env.S3_PERSISTENCE_BUCKET })
   )
